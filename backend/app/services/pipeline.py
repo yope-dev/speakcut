@@ -55,7 +55,6 @@ def get_clean_intervals_from_words(transcript, filler_patterns, start_threshold=
         raw_word = word_info['word'].strip().lower()
         norm_word = normalize_word(raw_word)
         start = word_info['start']
-        end = word_info['end']
         is_filler = any(re.fullmatch(pattern, norm_word, flags=re.IGNORECASE) for pattern in filler_patterns)
         if is_filler:
             if current_start is not None:
@@ -71,7 +70,6 @@ def get_clean_intervals_from_words(transcript, filler_patterns, start_threshold=
     return [interval for interval in clean_intervals if interval[1] - interval[0] > 0.3]
 
 
-# QWEN
 def is_video_file(file_path):
     """Check if file contains video stream"""
     cmd = [
@@ -232,65 +230,3 @@ def trim_with_ffmpeg(input_path, transcript, job_id, extension):
             os.remove(path)
         except Exception as e:
             print(f"Failed to delete temp file {path}: {e}")
-# QWEN
-
-
-
-# def cut_video_segment(input_path, start, end, output_path):
-#     command = [
-#         "ffmpeg",
-#         "-y",
-#         "-ss", str(start),
-#         "-to", str(end),
-#         "-i", str(input_path),
-#         "-c:v", "libx264",
-#         "-c:a", "aac",
-#         "-strict", "experimental",
-#         str(output_path)
-#     ]
-#     subprocess.run(command, check=True)
-#
-#
-# def concatenate_segments(segment_paths, output_path):
-#     list_path = output_path.parent / "concat_list.txt"
-#     with open(list_path, "w", encoding="utf-8") as f:
-#         for p in segment_paths:
-#             f.write(f"file '{p.resolve()}'\n")
-#
-#     command = [
-#         "ffmpeg",
-#         "-y",
-#         "-f", "concat",
-#         "-safe", "0",
-#         "-i", str(list_path),
-#         "-c", "copy",
-#         str(output_path)
-#     ]
-#     subprocess.run(command, check=True)
-#     try:
-#         os.remove(list_path)
-#     except Exception as e:
-#         print(f"Failed to delete temp file {list_path}: {e}")
-#
-# def trim_with_ffmpeg(input_path, transcript, job_id, extention):
-#     clean_intervals = get_clean_intervals_from_words(transcript, FILLER_PATTERNS)
-#     if not clean_intervals:
-#         return
-#
-#     segment_paths = []
-#     for idx, (start, end) in enumerate(clean_intervals):
-#         out_path = PROCESSED_DIR / f"{job_id}_part_{idx}{extention}"
-#         cut_video_segment(input_path, start, end, out_path)
-#         segment_paths.append(out_path)
-#
-#     final_path = PROCESSED_DIR / f"{job_id}_processed{extention}"
-#     concatenate_segments(segment_paths, final_path)
-#
-#     # Видаляємо тимчасові сегменти
-#     for path in segment_paths:
-#         try:
-#             os.remove(path)
-#         except Exception as e:
-#             print(f"Failed to delete temp file {path}: {e}")
-#
-#
